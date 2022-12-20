@@ -1,13 +1,14 @@
-import React from 'react';
+import React from "react";
 import { Button, Flex, Input, Text } from "@chakra-ui/react";
 import { useSetRecoilState } from "recoil";
 import { authModalState } from "../../../atoms/authModalAtom";
+import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { auth } from "../../../firebase/clientApp";
+import { FIREBASE_ERRORS } from "../../../firebase/errors";
 
-type SignUpProps = {
+type SignUpProps = {};
 
-};
-
-const SignUp:React.FC<SignUpProps> = () => {
+const SignUp: React.FC<SignUpProps> = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
   const [signUpForm, setSignUpForm] = React.useState({
     name: "",
@@ -16,12 +17,29 @@ const SignUp:React.FC<SignUpProps> = () => {
     confirmPassword: "",
   });
   const [formError, setFormError] = React.useState("");
+  const [
+    createUserWithEmailAndPassword,
+    _,
+    loading,
+    authError,
+  ] = useCreateUserWithEmailAndPassword(auth);
 
-  const onSubmit = ({target}: React.ChangeEvent<HTMLInputElement>) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (formError) setFormError("");
 
+    if (!signUpForm.email.includes("@")) {
+      return setFormError("Please enter a valid email");
+    }
+
+    if (signUpForm.password !== signUpForm.confirmPassword) {
+      return setFormError("Passwords do not match");
+    }
+
+    createUserWithEmailAndPassword(signUpForm.email, signUpForm.password);
   }
 
-  const onChange = ({target: { name, value }}: React.ChangeEvent<HTMLInputElement>) => {
+  const onChange = ({target: {name, value}}: React.ChangeEvent<HTMLInputElement>) => {
     setSignUpForm((prev) => ({
       ...prev,
       [name]: value
@@ -53,11 +71,12 @@ const SignUp:React.FC<SignUpProps> = () => {
         }}
         bg="gray.50"
       />
+
       <Input
         required
         name="email"
         placeholder="email"
-        type="text"
+        type="email"
         onChange={onChange}
         fontSize="14"
         h={12}
@@ -76,6 +95,7 @@ const SignUp:React.FC<SignUpProps> = () => {
         }}
         bg="gray.50"
       />
+
       <Input
         required
         name="password"
@@ -99,6 +119,7 @@ const SignUp:React.FC<SignUpProps> = () => {
         }}
         bg="gray.50"
       />
+
       <Input
         required
         name="confirmPassword"
@@ -122,12 +143,15 @@ const SignUp:React.FC<SignUpProps> = () => {
         }}
         bg="gray.50"
       />
-      <Button
-        w="100%"
-        mb={4}
-        mt={4}
-        type="submit"
-      >Sign Up</Button>
+
+      <Text textAlign="center" fontSize="10pt" color="red">
+        {formError || FIREBASE_ERRORS[authError?.message as keyof typeof FIREBASE_ERRORS]}
+      </Text>
+
+      <Button w="100%" mb={4} mt={4} type="submit" isLoading={loading} >
+        Sign Up
+      </Button>
+
       <Flex
         fontSize="9pt"
         justify="center"
