@@ -4,7 +4,6 @@ import {
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay
 } from "@chakra-ui/modal";
@@ -76,8 +75,6 @@ const AuthModal: React.FC = () => {
                   <ResetPassword toggleView={toggleView} />
                 )
               }
-
-
             </Flex>
           </ModalBody>
         </ModalContent>
