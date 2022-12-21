@@ -13,16 +13,33 @@ import { useRecoilState } from "recoil";
 import { authModalState } from "../../../atoms/authModalAtom";
 import AuthInputs from "./AuthInputs";
 import OAuthButtons from "./OAuthButtons";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../../firebase/clientApp";
+import ResetPassword from "./ResetPassword";
 
 const AuthModal: React.FC = () => {
   const [modalState, setModalState] = useRecoilState(authModalState);
+  const [user, loading, error] = useAuthState(auth);
 
   const handleModalState = () => {
     setModalState(prev => ({
       ...prev,
-      open: !prev.open
+      open: false
     }))
-  }
+  };
+
+  const toggleView = (view: string) => {
+    setModalState({
+      ...modalState,
+      view: view as typeof modalState.view,
+    });
+  };
+
+  React.useEffect(() => {
+    if (user) {
+      handleModalState();
+    }
+  }, [user])
 
   return (
     <>
@@ -44,21 +61,25 @@ const AuthModal: React.FC = () => {
             pt={0}
           >
             <Flex direction="column" align="center" justify="center" width="70%">
-              <OAuthButtons />
-              <Flex w="100%" justify="center" align="center" fontSize={14} fontWeight={900}>
-                <Text flex={"1 1"} borderBottom="1px solid" h={0} borderColor="gray.200"/>
-                <Text color="gray.500" mx={4}>OR</Text>
-                <Text flex={"1 1"} borderBottom="1px solid" h={0} borderColor="gray.200"/>
-              </Flex>
-              <AuthInputs />
-              {/*<ResetPassword />*/}
+              {
+                modalState.view === "login" || modalState.view === "signup" ? (
+                  <>
+                    <OAuthButtons />
+                    <Flex w="100%" justify="center" align="center" fontSize={14} fontWeight={900}>
+                      <Text flex={"1 1"} borderBottom="1px solid" h={0} borderColor="gray.200"/>
+                      <Text color="gray.500" mx={4}>OR</Text>
+                      <Text flex={"1 1"} borderBottom="1px solid" h={0} borderColor="gray.200"/>
+                    </Flex>
+                    <AuthInputs /*toggleView={toggleView}*/ />
+                  </>
+                ) : (
+                  <ResetPassword toggleView={toggleView} />
+                )
+              }
+
+
             </Flex>
           </ModalBody>
-
-          {/*<ModalFooter>*/}
-          {/*  <Button colorScheme={"blue"} mr={3} onClick={handleModalState}>Close</Button>*/}
-
-          {/*</ModalFooter>*/}
         </ModalContent>
       </Modal>
     </>

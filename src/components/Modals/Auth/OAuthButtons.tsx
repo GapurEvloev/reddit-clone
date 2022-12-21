@@ -5,7 +5,6 @@ import { auth } from "../../../firebase/clientApp";
 
 const OAuthButtons: React.FC = () => {
   const [signInWithGoogle, _, loading, error] = useSignInWithGoogle(auth);
-  console.log(error)
   return (
     <Flex direction="column" w="100%" mb={4} gap={2}>
       <Button
