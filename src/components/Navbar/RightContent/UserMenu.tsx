@@ -23,6 +23,7 @@ const UserMenu:React.FC<UserMenuProps> = ({ user }) => {
       <MenuButton
         cursor="pointer"
         px="6px"
+        py="8px"
         borderRadius={4}
         _hover={{outline: "1px solid", outlineColor: "gray.200"}}
       >

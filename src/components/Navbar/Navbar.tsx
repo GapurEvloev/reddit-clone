@@ -4,16 +4,17 @@ import SearchInput from "./SearchInput";
 import RightContent from "./RightContent/RightContent";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../../firebase/clientApp";
+import Directory from "./Directory/Directory";
 
 const Navbar: React.FC = () => {
   const [user, loading, error] = useAuthState(auth);
 
   return (
-    <Flex bg="white" minH="48px" p="6px 12px" justifyContent={{md: "space-between"}}>
+    <Flex bg="white" minH="48px" p="6px 12px" justifyContent={{md: "space-between"}} align="center">
       <Flex
         align="center"
-        width={{base: "40px", md: "auto"}}
-        mr={{base: 0, md: 5}}
+        width={{base: "32px", md: "auto"}}
+        mr={{base: 3, md: 5}}
         cursor="pointer"
         gap={2}
       >
@@ -24,8 +25,8 @@ const Navbar: React.FC = () => {
           h="18px"
         />
       </Flex>
-      {/*<Directory />*/}
-      <SearchInput/>
+      {user && <Directory />}
+      <SearchInput user={user} />
       <RightContent user={user} />
     </Flex>
   )
