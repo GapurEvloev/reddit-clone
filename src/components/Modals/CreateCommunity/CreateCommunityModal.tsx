@@ -12,7 +12,7 @@ import { Box, Button, Checkbox, Divider, Flex, Input, Stack, Text } from "@chakr
 import { Icon } from "@chakra-ui/icons";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
-import { doc, getDoc, serverTimestamp, setDoc } from "@firebase/firestore";
+import { doc, getDoc, runTransaction, serverTimestamp, setDoc } from "@firebase/firestore";
 import { auth, firestore } from "../../../firebase/clientApp";
 import { useAuthState } from "react-firebase-hooks/auth";
 
@@ -58,20 +58,28 @@ const CreateCommunityModal:React.FC<CreateCommunityModalProps> = ({isOpen, handl
     try {
       const communityDocRef = doc(firestore, "communities", communityName);
 
-      // check if the community exists in db
-      const communityDoc = await getDoc(communityDocRef);
+      await runTransaction(firestore, async (transaction) => {
+        // check if the community exists in db
+        const communityDoc = await transaction.get(communityDocRef);
 
-      if (communityDoc.exists()) {
-        throw new Error(`Sorry, r/${communityName} is already taken. Try another.`);
-      }
+        if (communityDoc.exists()) {
+          throw new Error(`Sorry, r/${communityName} is already taken. Try another.`);
+        }
 
-      // Create community
-      await setDoc(communityDocRef, {
-        creatorID: user?.uid,
-        createAt: serverTimestamp(),
-        numberOfMembers: 1,
-        privacyType: communityType,
-        //
+        // Create community
+        transaction.set(communityDocRef, {
+          creatorID: user?.uid,
+          createAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: communityType,
+          //
+        });
+
+        // create community snippet on user
+        transaction.set(doc(firestore, `users/${user?.uid}/communitySnippets`, communityName), {
+          communityId: communityName,
+          isModerator: true,
+        });
       });
     } catch (error: any) {
       console.error(error);
