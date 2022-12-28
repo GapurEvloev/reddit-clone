@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { Flex, Icon } from "@chakra-ui/react";
+import { Alert, AlertIcon, Flex, Icon, Text } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { BiPoll } from "react-icons/bi";
 import { BsLink45Deg, BsMic } from "react-icons/bs";
@@ -10,6 +10,18 @@ import { firestore, storage } from "../../../firebase/clientApp";
 import TabItem from './TabItem';
 import TextInputs from "./TextInputs";
 import ImageUpload from "./ImageUpload";
+import { Post } from "../../../atoms/postsAtom";
+import { User } from "@firebase/auth";
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "@firebase/storage";
+import { upload } from "@google-cloud/storage/build/src/resumable-upload";
 
 const formTabs: TabItemType[] = [
   {
@@ -40,10 +52,10 @@ export type TabItemType = {
 };
 
 type NewPostFormProps = {
-
+  user: User;
 };
 
-const NewPostForm:React.FC<NewPostFormProps> = () => {
+const NewPostForm:React.FC<NewPostFormProps> = ({ user }) => {
   const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
   const [textInputs, setTextInputs] = useState({
     title: "",
@@ -56,7 +68,41 @@ const NewPostForm:React.FC<NewPostFormProps> = () => {
   const router = useRouter();
 
   const handleCreatePost = async () => {
+    const {communityId} = router.query;
+    const { title, body } = textInputs;
 
+    const newPost: Post = {
+      communityId: communityId as string,
+      creatorId: user?.uid,
+      creatorsDisplayName: user.email!.split("@")[0],
+      title,
+      body,
+      numbersOfComments: 0,
+      voteStatus: 0,
+      createdAt: serverTimestamp() as Timestamp,
+    };
+
+    setLoading(true);
+    try {
+      const  postDocRef = await addDoc(collection(firestore, "posts"), newPost);
+
+      if (selectedFile) {
+        const imageRef = ref(storage, `posts/${postDocRef.id}/image`);
+        await uploadString(imageRef, selectedFile, "data_url");
+        const downloadURL = await getDownloadURL(imageRef);
+
+        await updateDoc(postDocRef, {
+          imageURL: downloadURL,
+        })
+      }
+    } catch (error: any) {
+      console.log("handleCreatePost error", error);
+      setError("Error creating post");
+    } finally {
+      setLoading(false);
+    }
+
+    // router.back();
   };
 
   const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,6 +159,14 @@ const NewPostForm:React.FC<NewPostFormProps> = () => {
           />
         )}
       </Flex>
+      {error && (
+        <Alert status="error">
+          <AlertIcon />
+          <Text fontSize={12} mr={2}>
+            Error creating post
+          </Text>
+        </Alert>
+      )}
     </Flex>
   )
 }
