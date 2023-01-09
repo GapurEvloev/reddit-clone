@@ -5,10 +5,10 @@ export type Post = {
   id?: string;
   communityId: string;
   creatorId: string;
-  creatorsDisplayName: string;
+  creatorDisplayName: string;
   title: string;
   body: string;
-  numbersOfComments: number;
+  numberOfComments: number;
   voteStatus: number;
   imageURL?: string;
   communityImageURL?: string;

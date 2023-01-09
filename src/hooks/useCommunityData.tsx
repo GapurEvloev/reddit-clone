@@ -20,10 +20,12 @@ const useCommunityData = () => {
     }
 
     setLoading(true);
+
     if (isJoined) {
       leaveCommunity(community.id);
       return;
     }
+    
     joinCommunity(community);
   };
 
@@ -38,8 +40,7 @@ const useCommunityData = () => {
       setCommunityStateValue(prev => ({
         ...prev,
         mySnippets: snippets as CommunitySnippet[],
-      }))
-      console.log("snippets", snippets);
+      }));
     } catch (error: any) {
       console.log("getMySnippets error", error);
       setError(error.message);

@@ -74,10 +74,10 @@ const NewPostForm:React.FC<NewPostFormProps> = ({ user }) => {
     const newPost: Post = {
       communityId: communityId as string,
       creatorId: user?.uid,
-      creatorsDisplayName: user.email!.split("@")[0],
+      creatorDisplayName: user.email!.split("@")[0],
       title,
       body,
-      numbersOfComments: 0,
+      numberOfComments: 0,
       voteStatus: 0,
       createdAt: serverTimestamp() as Timestamp,
     };
