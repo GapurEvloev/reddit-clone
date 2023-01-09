@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Community } from "../../atoms/communitiesAtom";
 import { collection, orderBy, where, query, getDocs } from "@firebase/firestore";
-import { firestore } from "../../firebase/clientApp";
+import { auth, firestore } from "../../firebase/clientApp";
 import usePosts from "../../hooks/usePosts";
 import { Post } from "../../atoms/postsAtom";
+import PostItem from "./PostItem";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { Stack } from "@chakra-ui/react";
+import PostLoader from "./Loader";
 
 type PostsProps = {
   communityData: Community;
@@ -12,9 +16,17 @@ type PostsProps = {
 
 const Posts: React.FC<PostsProps> = ({communityData}) => {
   const [loading, setLoading] = useState(false);
-  const {postStateValue, setPostStateValue} = usePosts(communityData);
+  const [user] = useAuthState(auth);
+  const {
+    postStateValue,
+    setPostStateValue,
+    onVote,
+    onDeletePost,
+    onSelectPost,
+  } = usePosts(communityData);
 
   const getPosts = async () => {
+    setLoading(true);
     try {
       const postsQuery = query(
         collection(firestore, 'posts'),
@@ -33,6 +45,8 @@ const Posts: React.FC<PostsProps> = ({communityData}) => {
       console.log("posts", posts);
     } catch (error: any) {
       console.log("getPosts error:", error.message);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -41,9 +55,20 @@ const Posts: React.FC<PostsProps> = ({communityData}) => {
   }, []);
 
   return (
-      <div>
-          Posts
-      </div>
+    <>
+      {loading ? (
+        <PostLoader />
+      ) : (
+        <Stack>
+          {
+            postStateValue.posts.map(post => (
+              <PostItem key={post.id} post={post} userIsCreator={user?.uid === post.creatorId} userVoteValue={undefined} onVote={onVote} onDeletePost={onDeletePost} onSelectPost={onSelectPost} />
+            ))
+          }
+        </Stack>
+      )}
+    </>
+
   );
 };
 

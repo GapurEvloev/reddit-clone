@@ -15,7 +15,9 @@ const usePosts = (communityData?: Community) => {
   return {
     postStateValue,
     setPostStateValue,
-
+    onVote,
+    onDeletePost,
+    onSelectPost,
   }
 };
 
