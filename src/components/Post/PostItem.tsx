@@ -21,7 +21,7 @@ type PostItemProps = {
   userIsCreator: boolean;
   userVoteValue?: number;
   onVote: () => {};
-  onDeletePost: () => {};
+  onDeletePost: (post: Post) => Promise<boolean>;
   onSelectPost: () => void;
   homePage?: boolean;
 };
@@ -44,10 +44,18 @@ const PostItem: React.FC<PostItemProps> = ({
   ) => {
     event.stopPropagation();
     setLoadingDelete(true);
-    try {
 
+    try {
+      const success = await onDeletePost(post);
+      if (!success) throw new Error("Failed to delete post");
+
+      console.log("Post successfully deleted");
+
+      // if (router) router.back();
     } catch (error: any) {
       console.log("Error deleting post", error.message);
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
@@ -187,7 +195,7 @@ const PostItem: React.FC<PostItemProps> = ({
               onClick={handleDelete}
             >
               {loadingDelete ? (
-                <Spinner size="sm" />
+                <Spinner size="xs" />
               ) : (
                 <>
                   <Icon as={AiOutlineDelete} mr={2} />
