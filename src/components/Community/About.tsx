@@ -1,5 +1,5 @@
 import React from "react";
-import { Community } from "../../atoms/communitiesAtom";
+import { Community, communityState } from "../../atoms/communitiesAtom";
 import {
   Box,
   Button,
@@ -21,6 +21,12 @@ import moment from "moment";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, firestore, storage } from "../../firebase/clientApp";
 import { useRouter } from "next/router";
+import { useSetRecoilState } from "recoil";
+import useSelectFile from "../../hooks/useSelectFile";
+import { getDownloadURL, ref, uploadString } from "@firebase/storage";
+import communityId from "../../pages/r/[communityId]";
+import { updateDoc } from "firebase/firestore";
+import { doc } from "@firebase/firestore";
 
 type AboutProps = {
   communityData: Community
@@ -28,7 +34,36 @@ type AboutProps = {
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
   const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
-  const router = useRouter();
+  const selectFileRef = React.useRef<HTMLInputElement>(null);
+  const setCommunityStateValue = useSetRecoilState(communityState);
+  const {selectedFile, setSelectedFile, onSelectFile} = useSelectFile();
+  const [imageLoading, setImageLoading] = React.useState(false);
+
+  const updateImage = async () => {
+    if (!selectedFile) return;
+    setImageLoading(true);
+
+    try {
+      const imageRef = ref(storage, `communities/${communityData.id}/image`);
+      await uploadString(imageRef, selectedFile, "data_url");
+      const downloadURL = await getDownloadURL(imageRef);
+      await updateDoc(doc(firestore, 'communities', communityData.id), {
+        imageURL: downloadURL,
+      });
+
+      setCommunityStateValue(prev => ({
+        ...prev,
+        currentCommunity: {
+          ...prev.currentCommunity,
+          imageURL: downloadURL,
+        } as Community,
+      }))
+    } catch (error: any) {
+      console.log("updateImage error", error.message);
+    } finally {
+      setImageLoading(false);
+    }
+  };
 
   return (
     <Box position="sticky" top="14px">
@@ -76,12 +111,62 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                 ).format("MMM DD, YYYY")}
               </Text>
             )}
-            <Link href={`/r/${router.query.community}/submit`}>
-              <Button mt={3} height="30px">
-                Create Post
-              </Button>
-            </Link>
           </Flex>
+          <Link href={`/r/${communityData.id}/submit`}>
+            <Button mt={3} height="30px">
+              Create Post
+            </Button>
+          </Link>
+          {user?.uid === communityData.creatorID &&
+            <>
+              <Divider/>
+              <Stack fontSize="10pt" spacing={1}>
+                <Text fontWeight={600}>Admin</Text>
+                <Flex align="center" justify="space-between">
+                  <Text
+                    color="blue.500"
+                    cursor="pointer"
+                    _hover={{ textDecoration: "underline" }}
+                    onClick={() => selectFileRef.current?.click()}
+                  >
+                    Change Image
+                  </Text>
+                  {communityData?.imageURL || selectedFile ? (
+                    <Image
+                      borderRadius="full"
+                      boxSize="40px"
+                      src={selectedFile || communityData?.imageURL}
+                      alt="Dan Abramov"
+                    />
+                  ) : (
+                    <Icon
+                      as={FaReddit}
+                      fontSize={40}
+                      color="brand.100"
+                      mr={2}
+                    />
+                  )}
+                </Flex>
+                {selectedFile &&
+                  (imageLoading ? (
+                    <Spinner />
+                  ) : (
+                    <Text cursor="pointer" onClick={updateImage}>
+                      Save Changes
+                    </Text>
+                  ))
+                }
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/x-png,image/gif,image/jpeg"
+                  hidden
+                  ref={selectFileRef}
+                  onChange={onSelectFile}
+                />
+              </Stack>
+            </>
+          }
         </Stack>
       </Flex>
     </Box>

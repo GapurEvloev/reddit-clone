@@ -22,6 +22,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref, uploadString } from "@firebase/storage";
 import { upload } from "@google-cloud/storage/build/src/resumable-upload";
+import useSelectFile from "../../../hooks/useSelectFile";
 
 const formTabs: TabItemType[] = [
   {
@@ -61,7 +62,7 @@ const NewPostForm:React.FC<NewPostFormProps> = ({ user }) => {
     title: "",
     body: ""
   });
-  const [selectedFile, setSelectedFile] = useState<string>("");
+  const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile();
   const selectFileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -105,19 +106,6 @@ const NewPostForm:React.FC<NewPostFormProps> = ({ user }) => {
     }
   };
 
-  const onSelectImage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const reader = new FileReader();
-    if (event.target.files?.[0]) {
-      reader.readAsDataURL(event.target.files[0]);
-    }
-
-    reader.onload = (readerEvent) => {
-      if (readerEvent.target?.result) {
-        setSelectedFile(readerEvent.target?.result as string);
-      }
-    };
-  };
-
   const onTextChange = ({
     target: { name, value },
   }: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -155,7 +143,7 @@ const NewPostForm:React.FC<NewPostFormProps> = ({ user }) => {
             setSelectedFile={setSelectedFile}
             setSelectedTab={setSelectedTab}
             selectFileRef={selectFileRef}
-            onSelectImage={onSelectImage}
+            onSelectImage={onSelectFile}
           />
         )}
       </Flex>
