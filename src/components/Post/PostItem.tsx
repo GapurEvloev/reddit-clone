@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import { Post } from "../../atoms/postsAtom";
-import { AiOutlineDelete } from "react-icons/ai";
-import { BsChat, BsDot } from "react-icons/bs";
-import { FaReddit } from "react-icons/fa";
+import React, { useState } from 'react';
+import { Post } from '../../atoms/postsAtom';
+import { AiOutlineDelete } from 'react-icons/ai';
+import { BsChat, BsDot } from 'react-icons/bs';
+import { FaReddit } from 'react-icons/fa';
 import {
   IoArrowDownCircleOutline,
   IoArrowDownCircleSharp,
@@ -10,11 +10,11 @@ import {
   IoArrowUpCircleOutline,
   IoArrowUpCircleSharp,
   IoBookmarkOutline,
-} from "react-icons/io5";
-import { Flex, Image, Stack, Text, Skeleton, Spinner } from "@chakra-ui/react";
-import { Icon } from "@chakra-ui/icons";
-import Link from "next/link";
-import moment from "moment";
+} from 'react-icons/io5';
+import { Flex, Image, Stack, Text, Skeleton, Spinner } from '@chakra-ui/react';
+import { Icon } from '@chakra-ui/icons';
+import Link from 'next/link';
+import moment from 'moment';
 
 type PostItemProps = {
   post: Post;
@@ -33,27 +33,27 @@ const PostItem: React.FC<PostItemProps> = ({
   onVote,
   onSelectPost,
   onDeletePost,
-  homePage
+  homePage,
 }) => {
   const [loadingImage, setLoadingImage] = useState(true);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const singlePostView = !onSelectPost; // function not passed to [pid]
 
   const handleDelete = async (
-    event: React.MouseEvent<HTMLDivElement, MouseEvent>
+    event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     event.stopPropagation();
     setLoadingDelete(true);
 
     try {
       const success = await onDeletePost(post);
-      if (!success) throw new Error("Failed to delete post");
+      if (!success) throw new Error('Failed to delete post');
 
-      console.log("Post successfully deleted");
+      console.log('Post successfully deleted');
 
       // if (router) router.back();
     } catch (error: any) {
-      console.log("Error deleting post", error.message);
+      console.log('Error deleting post', error.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -63,10 +63,10 @@ const PostItem: React.FC<PostItemProps> = ({
     <Flex
       border="1px solid"
       bg="white"
-      borderColor={singlePostView ? "white" : "gray.300"}
-      borderRadius={singlePostView ? "4px 4px 0px 0px" : 4}
-      cursor={singlePostView ? "unset" : "pointer"}
-      _hover={{ borderColor: singlePostView ? "none" : "gray.500" }}
+      borderColor={singlePostView ? 'white' : 'gray.300'}
+      borderRadius={singlePostView ? '4px 4px 0px 0px' : 4}
+      cursor={singlePostView ? 'unset' : 'pointer'}
+      _hover={{ borderColor: singlePostView ? 'none' : 'gray.500' }}
       onClick={onSelectPost}
     >
       <Flex
@@ -74,16 +74,17 @@ const PostItem: React.FC<PostItemProps> = ({
         align="center"
         p={2}
         width="40px"
-        bg={singlePostView ? "none" : "gray.100"}
-        borderRadius={singlePostView ? "0" : "3px 0px 0px 3px"}
+        bg={singlePostView ? 'none' : 'gray.100'}
+        borderRadius={singlePostView ? '0' : '3px 0px 0px 3px'}
       >
         <Icon
           as={
             userVoteValue === 1 ? IoArrowUpCircleSharp : IoArrowUpCircleOutline
           }
-          color={userVoteValue === 1 ? "brand.100" : "gray.400"}
+          color={userVoteValue === 1 ? 'brand.100' : 'gray.400'}
           fontSize={22}
           cursor="pointer"
+          onClick={onVote}
           // onClick={(event) => onVote(event, post, 1, post.communityId)}
         />
         <Text fontSize="9pt" fontWeight={600}>
@@ -95,9 +96,10 @@ const PostItem: React.FC<PostItemProps> = ({
               ? IoArrowDownCircleSharp
               : IoArrowDownCircleOutline
           }
-          color={userVoteValue === -1 ? "#4379FF" : "gray.400"}
+          color={userVoteValue === -1 ? '#4379FF' : 'gray.400'}
           fontSize={22}
           cursor="pointer"
+          onClick={onVote}
           // onClick={(event) => onVote(event, post, -1, post.communityId)}
         />
       </Flex>
@@ -120,7 +122,7 @@ const PostItem: React.FC<PostItemProps> = ({
                   <Link href={`r/${post.communityId}`}>
                     <Text
                       fontWeight={700}
-                      _hover={{ textDecoration: "underline" }}
+                      _hover={{ textDecoration: 'underline' }}
                       onClick={(event) => event.stopPropagation()}
                     >{`r/${post.communityId}`}</Text>
                   </Link>
@@ -128,7 +130,7 @@ const PostItem: React.FC<PostItemProps> = ({
                 </>
               )}
               <Text color="gray.500">
-                Posted by u/{post.creatorDisplayName}{" "}
+                Posted by u/{post.creatorDisplayName}{' '}
                 {moment(new Date(post.createdAt.seconds * 1000)).fromNow()}
               </Text>
             </Stack>
@@ -147,7 +149,7 @@ const PostItem: React.FC<PostItemProps> = ({
                 maxWidth="500px"
                 maxHeight="460px"
                 src={post.imageURL}
-                display={loadingImage ? "none" : "unset"}
+                display={loadingImage ? 'none' : 'unset'}
                 onLoad={() => setLoadingImage(false)}
                 alt="Post Image"
               />
@@ -159,7 +161,7 @@ const PostItem: React.FC<PostItemProps> = ({
             align="center"
             p="8px 10px"
             borderRadius={4}
-            _hover={{ bg: "gray.200" }}
+            _hover={{ bg: 'gray.200' }}
             cursor="pointer"
           >
             <Icon as={BsChat} mr={2} />
@@ -169,7 +171,7 @@ const PostItem: React.FC<PostItemProps> = ({
             align="center"
             p="8px 10px"
             borderRadius={4}
-            _hover={{ bg: "gray.200" }}
+            _hover={{ bg: 'gray.200' }}
             cursor="pointer"
           >
             <Icon as={IoArrowRedoOutline} mr={2} />
@@ -179,7 +181,7 @@ const PostItem: React.FC<PostItemProps> = ({
             align="center"
             p="8px 10px"
             borderRadius={4}
-            _hover={{ bg: "gray.200" }}
+            _hover={{ bg: 'gray.200' }}
             cursor="pointer"
           >
             <Icon as={IoBookmarkOutline} mr={2} />
@@ -190,7 +192,7 @@ const PostItem: React.FC<PostItemProps> = ({
               align="center"
               p="8px 10px"
               borderRadius={4}
-              _hover={{ bg: "gray.200" }}
+              _hover={{ bg: 'gray.200' }}
               cursor="pointer"
               onClick={handleDelete}
             >

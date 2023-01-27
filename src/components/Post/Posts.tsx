@@ -1,20 +1,25 @@
-import React, { useEffect, useState } from "react";
-import { Community } from "../../atoms/communitiesAtom";
-import { collection, orderBy, where, query, getDocs } from "@firebase/firestore";
-import { auth, firestore } from "../../firebase/clientApp";
-import usePosts from "../../hooks/usePosts";
-import { Post } from "../../atoms/postsAtom";
-import PostItem from "./PostItem";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { Stack } from "@chakra-ui/react";
-import PostLoader from "./Loader";
+import React, { useEffect, useState } from 'react';
+import { Community } from '../../atoms/communitiesAtom';
+import {
+  collection,
+  orderBy,
+  where,
+  query,
+  getDocs,
+} from '@firebase/firestore';
+import { auth, firestore } from '../../firebase/clientApp';
+import usePosts from '../../hooks/usePosts';
+import { Post } from '../../atoms/postsAtom';
+import PostItem from './PostItem';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { Stack } from '@chakra-ui/react';
+import PostLoader from './Loader';
 
 type PostsProps = {
   communityData: Community;
-  userId?: string;
 };
 
-const Posts: React.FC<PostsProps> = ({communityData}) => {
+const Posts: React.FC<PostsProps> = ({ communityData }) => {
   const [loading, setLoading] = useState(false);
   const [user] = useAuthState(auth);
   const {
@@ -24,31 +29,30 @@ const Posts: React.FC<PostsProps> = ({communityData}) => {
     onDeletePost,
     onSelectPost,
   } = usePosts(communityData);
-
   const getPosts = async () => {
     setLoading(true);
     try {
       const postsQuery = query(
         collection(firestore, 'posts'),
         where('communityId', '==', communityData.id),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
       const postDocs = await getDocs(postsQuery);
 
       // Store in post state
-      const posts = postDocs.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      const posts = postDocs.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       setPostStateValue((prev) => ({
         ...prev,
         posts: posts as Post[],
       }));
 
-      console.log("posts", posts);
+      console.log('posts', posts);
     } catch (error: any) {
-      console.log("getPosts error:", error.message);
+      console.log('getPosts error:', error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     getPosts();
@@ -60,15 +64,20 @@ const Posts: React.FC<PostsProps> = ({communityData}) => {
         <PostLoader />
       ) : (
         <Stack>
-          {
-            postStateValue.posts.map(post => (
-              <PostItem key={post.id} post={post} userIsCreator={user?.uid === post.creatorId} userVoteValue={undefined} onVote={onVote} onDeletePost={onDeletePost} onSelectPost={onSelectPost} />
-            ))
-          }
+          {postStateValue.posts.map((post) => (
+            <PostItem
+              key={post.id}
+              post={post}
+              userIsCreator={user?.uid === post.creatorId}
+              userVoteValue={undefined}
+              onVote={onVote}
+              onDeletePost={onDeletePost}
+              onSelectPost={onSelectPost}
+            />
+          ))}
         </Stack>
       )}
     </>
-
   );
 };
 

@@ -1,5 +1,5 @@
-import { atom } from "recoil";
-import { Timestamp } from "@firebase/firestore";
+import { atom } from 'recoil';
+import { Timestamp } from '@firebase/firestore';
 
 export type Post = {
   id?: string;
@@ -19,7 +19,7 @@ interface PostState {
   selectedPost: Post | null;
   posts: Post[];
   // postVotes
-};
+}
 
 const defaultPostState: PostState = {
   selectedPost: null,
