@@ -1,10 +1,10 @@
-import React from "react";
-import { Community } from "../atoms/communitiesAtom";
-import { Post, postState } from "../atoms/postsAtom";
-import { useRecoilState } from "recoil";
-import { deleteObject, ref } from "@firebase/storage";
-import { firestore, storage } from "../firebase/clientApp";
-import { deleteDoc, doc } from "@firebase/firestore";
+import React from 'react';
+import { Community } from '../atoms/communitiesAtom';
+import { Post, postState } from '../atoms/postsAtom';
+import { useRecoilState } from 'recoil';
+import { deleteObject, ref } from '@firebase/storage';
+import { firestore, storage } from '../firebase/clientApp';
+import { deleteDoc, doc } from '@firebase/firestore';
 
 const usePosts = (communityData?: Community) => {
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
@@ -18,23 +18,20 @@ const usePosts = (communityData?: Community) => {
       if (post.imageURL) {
         const imageRef = ref(storage, `posts/${post.id}/image`);
         await deleteObject(imageRef);
-      };
-
+      }
       const postDocRef = doc(firestore, 'posts', post.id!);
       await deleteDoc(postDocRef);
 
-      setPostStateValue(prev => ({
+      setPostStateValue((prev) => ({
         ...prev,
-        posts: prev.posts.filter(item => item.id !== post.id),
+        posts: prev.posts.filter((item) => item.id !== post.id),
       }));
 
       return true;
     } catch (error: any) {
-      console.log("onDeletePost error", error.message);
+      console.log('onDeletePost error', error.message);
       return false;
     }
-
-    return true;
   };
 
   return {
@@ -43,7 +40,7 @@ const usePosts = (communityData?: Community) => {
     onVote,
     onDeletePost,
     onSelectPost,
-  }
+  };
 };
 
 export default usePosts;

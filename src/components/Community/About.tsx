@@ -1,5 +1,5 @@
-import React from "react";
-import { Community, communityState } from "../../atoms/communitiesAtom";
+import React from 'react';
+import { Community, communityState } from '../../atoms/communitiesAtom';
 import {
   Box,
   Button,
@@ -12,31 +12,31 @@ import {
   Text,
   Image,
   Spinner,
-} from "@chakra-ui/react";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { RiCakeLine } from "react-icons/ri";
-import { FaReddit } from "react-icons/fa";
-import Link from "next/link";
-import moment from "moment";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, firestore, storage } from "../../firebase/clientApp";
-import { useRouter } from "next/router";
-import { useSetRecoilState } from "recoil";
-import useSelectFile from "../../hooks/useSelectFile";
-import { getDownloadURL, ref, uploadString } from "@firebase/storage";
-import communityId from "../../pages/r/[communityId]";
-import { updateDoc } from "firebase/firestore";
-import { doc } from "@firebase/firestore";
+} from '@chakra-ui/react';
+import { HiOutlineDotsHorizontal } from 'react-icons/hi';
+import { RiCakeLine } from 'react-icons/ri';
+import { FaReddit } from 'react-icons/fa';
+import Link from 'next/link';
+import moment from 'moment';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, firestore, storage } from '../../firebase/clientApp';
+import { useRouter } from 'next/router';
+import { useSetRecoilState } from 'recoil';
+import useSelectFile from '../../hooks/useSelectFile';
+import { getDownloadURL, ref, uploadString } from '@firebase/storage';
+import communityId from '../../pages/r/[communityId]';
+import { updateDoc } from 'firebase/firestore';
+import { doc } from '@firebase/firestore';
 
 type AboutProps = {
-  communityData: Community
+  communityData: Community;
 };
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
   const [user] = useAuthState(auth); // will revisit how 'auth' state is passed
   const selectFileRef = React.useRef<HTMLInputElement>(null);
   const setCommunityStateValue = useSetRecoilState(communityState);
-  const {selectedFile, setSelectedFile, onSelectFile} = useSelectFile();
+  const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile();
   const [imageLoading, setImageLoading] = React.useState(false);
 
   const updateImage = async () => {
@@ -45,21 +45,21 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
 
     try {
       const imageRef = ref(storage, `communities/${communityData.id}/image`);
-      await uploadString(imageRef, selectedFile, "data_url");
+      await uploadString(imageRef, selectedFile, 'data_url');
       const downloadURL = await getDownloadURL(imageRef);
       await updateDoc(doc(firestore, 'communities', communityData.id), {
         imageURL: downloadURL,
       });
 
-      setCommunityStateValue(prev => ({
+      setCommunityStateValue((prev) => ({
         ...prev,
         currentCommunity: {
           ...prev.currentCommunity,
           imageURL: downloadURL,
         } as Community,
-      }))
+      }));
     } catch (error: any) {
-      console.log("updateImage error", error.message);
+      console.log('updateImage error', error.message);
     } finally {
       setImageLoading(false);
     }
@@ -84,9 +84,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
         <Stack spacing={2}>
           <Flex width="100%" p={2} fontWeight={600} fontSize="10pt">
             <Flex direction="column" flexGrow={1}>
-              <Text>
-                {communityData?.numberOfMembers?.toLocaleString()}
-              </Text>
+              <Text>{communityData?.numberOfMembers?.toLocaleString()}</Text>
               <Text>Members</Text>
             </Flex>
             <Flex direction="column" flexGrow={1}>
@@ -105,10 +103,10 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
             <Icon as={RiCakeLine} mr={2} fontSize={18} />
             {communityData?.createdAt && (
               <Text>
-                Created{" "}
+                Created{' '}
                 {moment(
-                  new Date(communityData.createdAt!.seconds * 1000)
-                ).format("MMM DD, YYYY")}
+                  new Date(communityData.createdAt!.seconds * 1000),
+                ).format('MMM DD, YYYY')}
               </Text>
             )}
           </Flex>
@@ -117,16 +115,16 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               Create Post
             </Button>
           </Link>
-          {user?.uid === communityData.creatorID &&
+          {user?.uid === communityData.creatorID && (
             <>
-              <Divider/>
+              <Divider />
               <Stack fontSize="10pt" spacing={1}>
                 <Text fontWeight={600}>Admin</Text>
                 <Flex align="center" justify="space-between">
                   <Text
                     color="blue.500"
                     cursor="pointer"
-                    _hover={{ textDecoration: "underline" }}
+                    _hover={{ textDecoration: 'underline' }}
                     onClick={() => selectFileRef.current?.click()}
                   >
                     Change Image
@@ -154,8 +152,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                     <Text cursor="pointer" onClick={updateImage}>
                       Save Changes
                     </Text>
-                  ))
-                }
+                  ))}
                 <input
                   id="file-upload"
                   type="file"
@@ -166,7 +163,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                 />
               </Stack>
             </>
-          }
+          )}
         </Stack>
       </Flex>
     </Box>

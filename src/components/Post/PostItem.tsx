@@ -11,7 +11,16 @@ import {
   IoArrowUpCircleSharp,
   IoBookmarkOutline,
 } from 'react-icons/io5';
-import { Flex, Image, Stack, Text, Skeleton, Spinner } from '@chakra-ui/react';
+import {
+  Flex,
+  Image,
+  Stack,
+  Text,
+  Skeleton,
+  Spinner,
+  Alert,
+  AlertIcon,
+} from '@chakra-ui/react';
 import { Icon } from '@chakra-ui/icons';
 import Link from 'next/link';
 import moment from 'moment';
@@ -39,6 +48,8 @@ const PostItem: React.FC<PostItemProps> = ({
   const [loadingDelete, setLoadingDelete] = useState(false);
   const singlePostView = !onSelectPost; // function not passed to [pid]
 
+  const [error, setError] = useState('');
+
   const handleDelete = async (
     event: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
@@ -54,6 +65,7 @@ const PostItem: React.FC<PostItemProps> = ({
       // if (router) router.back();
     } catch (error: any) {
       console.log('Error deleting post', error.message);
+      setError(error.message);
     } finally {
       setLoadingDelete(false);
     }
@@ -104,6 +116,14 @@ const PostItem: React.FC<PostItemProps> = ({
         />
       </Flex>
       <Flex direction="column" width="100%">
+        {error && (
+          <Alert status="error">
+            <AlertIcon />
+            <Text fontSize={12} mr={2}>
+              {error}
+            </Text>
+          </Alert>
+        )}
         <Stack spacing={1} p="10px 10px">
           {post.createdAt && (
             <Stack direction="row" spacing={0.6} align="center" fontSize="9pt">
@@ -193,6 +213,7 @@ const PostItem: React.FC<PostItemProps> = ({
               p="8px 10px"
               borderRadius={4}
               _hover={{ bg: 'gray.200' }}
+              pointerEvents={loadingDelete ? 'none' : 'auto'}
               cursor="pointer"
               onClick={handleDelete}
             >
