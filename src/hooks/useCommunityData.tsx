@@ -1,21 +1,32 @@
 import React from 'react';
-import { useRecoilState, useSetRecoilState } from "recoil";
-import { Community, CommunitySnippet, communityState } from "../atoms/communitiesAtom";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, firestore } from "../firebase/clientApp";
-import { collection, doc, getDocs, increment, writeBatch } from "@firebase/firestore";
-import { authModalState } from "../atoms/authModalAtom";
+import { useRecoilState, useSetRecoilState } from 'recoil';
+import {
+  Community,
+  CommunitySnippet,
+  communityState,
+} from '../atoms/communitiesAtom';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth, firestore } from '../firebase/clientApp';
+import {
+  collection,
+  doc,
+  getDocs,
+  increment,
+  writeBatch,
+} from '@firebase/firestore';
+import { authModalState } from '../atoms/authModalAtom';
 
 const useCommunityData = () => {
   const [user] = useAuthState(auth);
-  const [communityStateValue, setCommunityStateValue] = useRecoilState(communityState);
+  const [communityStateValue, setCommunityStateValue] =
+    useRecoilState(communityState);
   const setAuthModalState = useSetRecoilState(authModalState);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
+  const [error, setError] = React.useState('');
 
   const onJoinOrLeaveCommunity = (community: Community, isJoined: boolean) => {
     if (!user) {
-      setAuthModalState({ open: true, view: "login" });
+      setAuthModalState({ open: true, view: 'login' });
       return;
     }
 
@@ -25,7 +36,7 @@ const useCommunityData = () => {
       leaveCommunity(community.id);
       return;
     }
-    
+
     joinCommunity(community);
   };
 
@@ -33,21 +44,23 @@ const useCommunityData = () => {
     setLoading(true);
 
     try {
-      const snippetDocs = await getDocs(collection(firestore, `users/${user?.uid}/communitySnippets`));
+      const snippetDocs = await getDocs(
+        collection(firestore, `users/${user?.uid}/communitySnippets`),
+      );
 
-      const snippets = snippetDocs.docs.map(doc => ({...doc.data()}));
+      const snippets = snippetDocs.docs.map((doc) => ({ ...doc.data() }));
 
-      setCommunityStateValue(prev => ({
+      setCommunityStateValue((prev) => ({
         ...prev,
         mySnippets: snippets as CommunitySnippet[],
       }));
     } catch (error: any) {
-      console.log("getMySnippets error", error);
+      console.log('getMySnippets error', error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const joinCommunity = async (community: Community) => {
     try {
@@ -55,19 +68,19 @@ const useCommunityData = () => {
 
       const newSnippet: CommunitySnippet = {
         communityId: community.id,
-        imageURL: community.imageURL || "",
+        imageURL: community.imageURL || '',
       };
 
       batch.set(
         doc(
           firestore,
           `users/${user?.uid}/communitySnippets`,
-          community.id // will for sure have this value at this point
+          community.id, // will for sure have this value at this point
         ),
-        newSnippet
+        newSnippet,
       );
 
-      batch.update(doc(firestore, "communities", community.id), {
+      batch.update(doc(firestore, 'communities', community.id), {
         numberOfMembers: increment(1),
       });
 
@@ -80,7 +93,7 @@ const useCommunityData = () => {
         mySnippets: [...prev.mySnippets, newSnippet],
       }));
     } catch (error: any) {
-      console.log("joinCommunity error", error);
+      console.log('joinCommunity error', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -92,10 +105,10 @@ const useCommunityData = () => {
       const batch = writeBatch(firestore);
 
       batch.delete(
-        doc(firestore, `users/${user?.uid}/communitySnippets/${communityId}`)
+        doc(firestore, `users/${user?.uid}/communitySnippets/${communityId}`),
       );
 
-      batch.update(doc(firestore, "communities", communityId), {
+      batch.update(doc(firestore, 'communities', communityId), {
         numberOfMembers: increment(-1),
       });
 
@@ -104,19 +117,25 @@ const useCommunityData = () => {
       setCommunityStateValue((prev) => ({
         ...prev,
         mySnippets: prev.mySnippets.filter(
-          (item) => item.communityId !== communityId
+          (item) => item.communityId !== communityId,
         ),
       }));
     } catch (error: any) {
-      console.log("leaveCommunity error", error);
-      setError(error.message)
+      console.log('leaveCommunity error', error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   React.useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        mySnippets: [],
+      }));
+      return;
+    }
     getMySnippets();
   }, [user]);
 
@@ -125,6 +144,6 @@ const useCommunityData = () => {
     onJoinOrLeaveCommunity,
     loading,
     error,
-  }
-}
+  };
+};
 export default useCommunityData;

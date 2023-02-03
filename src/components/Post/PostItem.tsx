@@ -29,7 +29,12 @@ type PostItemProps = {
   post: Post;
   userIsCreator: boolean;
   userVoteValue?: number;
-  onVote: () => {};
+  onVote: (
+    event: React.MouseEvent<SVGElement, MouseEvent>,
+    post: Post,
+    vote: number,
+    communityId: string,
+  ) => void;
   onDeletePost: (post: Post) => Promise<boolean>;
   onSelectPost: () => void;
   homePage?: boolean;
@@ -96,8 +101,7 @@ const PostItem: React.FC<PostItemProps> = ({
           color={userVoteValue === 1 ? 'brand.100' : 'gray.400'}
           fontSize={22}
           cursor="pointer"
-          onClick={onVote}
-          // onClick={(event) => onVote(event, post, 1, post.communityId)}
+          onClick={(event) => onVote(event, post, 1, post.communityId)}
         />
         <Text fontSize="9pt" fontWeight={600}>
           {post.voteStatus}
@@ -111,8 +115,7 @@ const PostItem: React.FC<PostItemProps> = ({
           color={userVoteValue === -1 ? '#4379FF' : 'gray.400'}
           fontSize={22}
           cursor="pointer"
-          onClick={onVote}
-          // onClick={(event) => onVote(event, post, -1, post.communityId)}
+          onClick={(event) => onVote(event, post, -1, post.communityId)}
         />
       </Flex>
       <Flex direction="column" width="100%">
@@ -135,6 +138,7 @@ const PostItem: React.FC<PostItemProps> = ({
                       boxSize="18px"
                       src={post.communityImageURL}
                       mr={2}
+                      alt="Community image"
                     />
                   ) : (
                     <Icon as={FaReddit} fontSize={18} mr={1} color="blue.500" />
