@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 
 const useSelectFile = () => {
-  const [selectedFile, setSelectedFile] = useState<string>("");
+  const [selectedFile, setSelectedFile] = useState<string>('');
 
   const onSelectFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const reader = new FileReader();
@@ -20,7 +20,7 @@ const useSelectFile = () => {
     selectedFile,
     setSelectedFile,
     onSelectFile,
-  }
+  };
 };
 
 export default useSelectFile;

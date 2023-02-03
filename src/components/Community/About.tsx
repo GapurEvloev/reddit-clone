@@ -6,8 +6,6 @@ import {
   Divider,
   Flex,
   Icon,
-  Skeleton,
-  SkeletonCircle,
   Stack,
   Text,
   Image,
@@ -20,11 +18,9 @@ import Link from 'next/link';
 import moment from 'moment';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { auth, firestore, storage } from '../../firebase/clientApp';
-import { useRouter } from 'next/router';
 import { useSetRecoilState } from 'recoil';
 import useSelectFile from '../../hooks/useSelectFile';
 import { getDownloadURL, ref, uploadString } from '@firebase/storage';
-import communityId from '../../pages/r/[communityId]';
 import { updateDoc } from 'firebase/firestore';
 import { doc } from '@firebase/firestore';
 
@@ -111,11 +107,11 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
             )}
           </Flex>
           <Link href={`/r/${communityData.id}/submit`}>
-            <Button mt={3} height="30px">
+            <Button mt={3} w="100%" height="30px">
               Create Post
             </Button>
           </Link>
-          {user?.uid === communityData.creatorID && (
+          {user?.uid === communityData.creatorId && (
             <>
               <Divider />
               <Stack fontSize="10pt" spacing={1}>
@@ -134,7 +130,7 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                       borderRadius="full"
                       boxSize="40px"
                       src={selectedFile || communityData?.imageURL}
-                      alt="Dan Abramov"
+                      alt="Community Image"
                     />
                   ) : (
                     <Icon
@@ -149,9 +145,13 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
                   (imageLoading ? (
                     <Spinner />
                   ) : (
-                    <Text cursor="pointer" onClick={updateImage}>
+                    <Button
+                      cursor="pointer"
+                      onClick={updateImage}
+                      bg="brand.100"
+                    >
                       Save Changes
-                    </Text>
+                    </Button>
                   ))}
                 <input
                   id="file-upload"
