@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import React, { useState } from 'react';
 import { Post } from '../../atoms/postsAtom';
 import { AiOutlineDelete } from 'react-icons/ai';
@@ -36,7 +37,7 @@ type PostItemProps = {
     communityId: string,
   ) => void;
   onDeletePost: (post: Post) => Promise<boolean>;
-  onSelectPost: () => void;
+  onSelectPost?: (post: Post) => void;
   homePage?: boolean;
 };
 
@@ -51,6 +52,7 @@ const PostItem: React.FC<PostItemProps> = ({
 }) => {
   const [loadingImage, setLoadingImage] = useState(true);
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const router = useRouter();
   const singlePostView = !onSelectPost; // function not passed to [pid]
 
   const [error, setError] = useState('');
@@ -67,7 +69,9 @@ const PostItem: React.FC<PostItemProps> = ({
 
       console.log('Post successfully deleted');
 
-      // if (router) router.back();
+      if (singlePostView) {
+        router.push(`/r/${post.communityId}`)
+      }
     } catch (error: any) {
       console.log('Error deleting post', error.message);
       setError(error.message);
@@ -84,7 +88,7 @@ const PostItem: React.FC<PostItemProps> = ({
       borderRadius={singlePostView ? '4px 4px 0px 0px' : 4}
       cursor={singlePostView ? 'unset' : 'pointer'}
       _hover={{ borderColor: singlePostView ? 'none' : 'gray.500' }}
-      onClick={onSelectPost}
+      onClick={() => onSelectPost && onSelectPost(post)}
     >
       <Flex
         direction="column"

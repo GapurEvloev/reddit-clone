@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import React from 'react';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { authModalState } from '../atoms/authModalAtom';
@@ -19,6 +20,7 @@ import communityId from '../pages/r/[communityId]';
 
 const usePosts = (communityData?: Community) => {
   const [user] = useAuthState(auth);
+  const router = useRouter();
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
   const currentCommunity = useRecoilValue(communityState).currentCommunity;
   const setAuthModalState = useSetRecoilState(authModalState);
@@ -29,6 +31,7 @@ const usePosts = (communityData?: Community) => {
     vote: number,
     communityId: string,
   ) => {
+    event.stopPropagation();
     // if no user => open auth modal
     if (!user?.uid) {
       setAuthModalState({ open: true, view: 'login' });
@@ -119,6 +122,13 @@ const usePosts = (communityData?: Community) => {
         postVotes: updatedPostVotes,
       }));
 
+      if (postStateValue.selectedPost) {
+        setPostStateValue((prev) => ({
+          ...prev,
+          selectedPost: updatedPost,
+        }));
+      }
+
       // update our post document
       const postRef = doc(firestore, 'posts', post.id!);
       batch.update(postRef, { voteStatus: voteStatus + voteChange });
@@ -129,7 +139,13 @@ const usePosts = (communityData?: Community) => {
     }
   };
 
-  const onSelectPost = () => {};
+  const onSelectPost = (post: Post) => {
+    setPostStateValue((prev) => ({
+      ...prev,
+      selectedPost: post,
+    }));
+    router.push(`/r/${post.communityId}/comments/${post.id}`);
+  };
 
   const onDeletePost = async (post: Post): Promise<boolean> => {
     try {
