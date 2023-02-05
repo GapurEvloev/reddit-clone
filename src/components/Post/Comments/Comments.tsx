@@ -113,7 +113,40 @@ const Comments: React.FC<CommentsProps> = ({
     }
   };
 
-  const onDeleteComment = async (comment: any) => {};
+  const onDeleteComment = async (comment: Comment) => {
+    setDeleteLoading(comment.id!);
+    try {
+      const batch = writeBatch(firestore);
+
+      // delete comment document
+      if (!comment.id) throw 'Comment has no ID';
+      const commentDocRef = doc(firestore, 'comments', comment.id);
+      batch.delete(commentDocRef);
+
+      // update post numberOfComments -1
+      const postDocRef = doc(firestore, 'posts', selectedPost?.id!);
+      batch.update(postDocRef, {
+        numberOfComments: increment(-1),
+      });
+
+      await batch.commit();
+
+      // update client recoil state
+      setPostState((prev) => ({
+        ...prev,
+        selectedPost: {
+          ...prev.selectedPost,
+          numberOfComments: prev.selectedPost?.numberOfComments! - 1,
+        } as Post,
+      }));
+
+      setComments((prev) => prev.filter((item) => item.id !== comment.id));
+    } catch (error) {
+      console.log('onDeleteComment error', error);
+    } finally {
+      setDeleteLoading('');
+    }
+  };
 
   const getPostComments = async () => {
     try {
@@ -192,7 +225,7 @@ const Comments: React.FC<CommentsProps> = ({
                     key={comment.id}
                     comment={comment}
                     onDeleteComment={onDeleteComment}
-                    loadingDelete={false}
+                    loadingDelete={deleteLoading === comment.id}
                     userId={user?.uid}
                   />
                 ))}
