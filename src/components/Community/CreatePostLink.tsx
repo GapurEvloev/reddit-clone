@@ -1,13 +1,14 @@
-import { Flex, Icon, Input } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React from "react";
-import { BsLink45Deg } from "react-icons/bs";
-import { FaReddit } from "react-icons/fa";
-import { IoImageOutline } from "react-icons/io5";
-import { useAuthState } from "react-firebase-hooks/auth";
-import { auth } from "../../firebase/clientApp";
-import { useSetRecoilState } from "recoil";
-import { authModalState } from "../../atoms/authModalAtom";
+import { Flex, Icon, Input } from '@chakra-ui/react';
+import { useRouter } from 'next/router';
+import React from 'react';
+import { BsLink45Deg } from 'react-icons/bs';
+import { FaReddit } from 'react-icons/fa';
+import { IoImageOutline } from 'react-icons/io5';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { auth } from '../../firebase/clientApp';
+import { useSetRecoilState } from 'recoil';
+import { authModalState } from '../../atoms/authModalAtom';
+import useDirectory from '../../hooks/useDirectory';
 
 type CreatePostProps = {};
 
@@ -15,14 +16,21 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
   const router = useRouter();
   const [user] = useAuthState(auth);
   const setAuthModalState = useSetRecoilState(authModalState);
+  const { toggleMenuOpen } = useDirectory();
 
   const onClick = () => {
     if (!user) {
-      setAuthModalState({open: true, view: "login"})
+      setAuthModalState({ open: true, view: 'login' });
       return;
     }
     const { communityId } = router.query;
-    router.push(`/r/${communityId}/submit`);
+
+    if (communityId) {
+      router.push(`/r/${communityId}/submit`);
+      return;
+    }
+
+    toggleMenuOpen();
   };
   return (
     <Flex
@@ -40,17 +48,17 @@ const CreatePostLink: React.FC<CreatePostProps> = () => {
       <Input
         placeholder="Create Post"
         fontSize="10pt"
-        _placeholder={{ color: "gray.500" }}
+        _placeholder={{ color: 'gray.500' }}
         _hover={{
-          bg: "white",
-          border: "1px solid",
-          borderColor: "blue.500",
+          bg: 'white',
+          border: '1px solid',
+          borderColor: 'blue.500',
         }}
         _focus={{
-          outline: "none",
-          bg: "white",
-          border: "1px solid",
-          borderColor: "blue.500",
+          outline: 'none',
+          bg: 'white',
+          border: '1px solid',
+          borderColor: 'blue.500',
         }}
         bg="gray.50"
         borderColor="gray.200"
