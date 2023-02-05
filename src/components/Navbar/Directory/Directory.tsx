@@ -8,7 +8,7 @@ import Communities from "./Communities";
 const Directory:React.FC = () => {
 
   return (
-    <Menu>
+    <Menu isOpen={false}>
       <MenuButton
         cursor="pointer"
         px="6px"
