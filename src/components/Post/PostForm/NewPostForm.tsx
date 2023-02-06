@@ -21,7 +21,6 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadString } from '@firebase/storage';
-import { upload } from '@google-cloud/storage/build/src/resumable-upload';
 import useSelectFile from '../../../hooks/useSelectFile';
 
 const formTabs: TabItemType[] = [
@@ -54,9 +53,13 @@ export type TabItemType = {
 
 type NewPostFormProps = {
   user: User;
+  communityImageURL?: string;
 };
 
-const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
+const NewPostForm: React.FC<NewPostFormProps> = ({
+  user,
+  communityImageURL,
+}) => {
   const router = useRouter();
   const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
   const [textInputs, setTextInputs] = useState({
@@ -74,6 +77,7 @@ const NewPostForm: React.FC<NewPostFormProps> = ({ user }) => {
 
     const newPost: Post = {
       communityId: communityId as string,
+      communityImageURL: communityImageURL || '',
       creatorId: user?.uid,
       creatorDisplayName: user.email!.split('@')[0],
       title,

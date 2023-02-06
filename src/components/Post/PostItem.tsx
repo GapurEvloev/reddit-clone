@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useRouter } from 'next/router';
 import React, { useState } from 'react';
 import { Post } from '../../atoms/postsAtom';
 import { AiOutlineDelete } from 'react-icons/ai';
@@ -70,7 +70,7 @@ const PostItem: React.FC<PostItemProps> = ({
       console.log('Post successfully deleted');
 
       if (singlePostView) {
-        router.push(`/r/${post.communityId}`)
+        router.push(`/r/${post.communityId}`);
       }
     } catch (error: any) {
       console.log('Error deleting post', error.message);
@@ -147,11 +147,10 @@ const PostItem: React.FC<PostItemProps> = ({
                   ) : (
                     <Icon as={FaReddit} fontSize={18} mr={1} color="blue.500" />
                   )}
-                  <Link href={`r/${post.communityId}`}>
+                  <Link href={`r/${post.communityId}`} onClick={event => event.stopPropagation()}>
                     <Text
                       fontWeight={700}
                       _hover={{ textDecoration: 'underline' }}
-                      onClick={(event) => event.stopPropagation()}
                     >{`r/${post.communityId}`}</Text>
                   </Link>
                   <Icon as={BsDot} color="gray.500" fontSize={8} />
