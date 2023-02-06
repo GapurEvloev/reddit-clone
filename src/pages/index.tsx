@@ -11,6 +11,7 @@ import { auth, firestore } from '../firebase/clientApp';
 import { useRecoilValue } from 'recoil';
 import { communityState } from '../atoms/communitiesAtom';
 import { useEffect, useState } from 'react';
+import useCommunityData from "../hooks/useCommunityData";
 import usePosts from '../hooks/usePosts';
 import { Stack } from '@chakra-ui/react';
 import {
@@ -37,9 +38,37 @@ const Home: NextPage = () => {
     onSelectPost,
     onDeletePost,
   } = usePosts();
-  const communityStateValue = useRecoilValue(communityState);
 
-  const buildUserHomeFeed = () => {};
+  const {communityStateValue: {mySnippets, snippetsFetched}} = useCommunityData();
+
+  const buildUserHomeFeed = async () => {
+    setLoading(true);
+    try {
+      if (mySnippets.length) {
+        const myCommunityIds = mySnippets.map((snippet) => snippet.communityId);
+        const postQuery = query(
+          collection(firestore, 'posts'),
+          where('communityId', 'in', myCommunityIds),
+          limit(10),
+        );
+
+        const postDocs = await getDocs(postQuery);
+        const posts = postDocs.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPostStateValue((prev) => ({
+          ...prev,
+          posts: posts as Post[],
+        }));
+      } else {
+      }
+    } catch (error) {
+      console.log('communityStateValue error', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const buildNoUserHomeFeed = async () => {
     setLoading(true);
@@ -69,6 +98,11 @@ const Home: NextPage = () => {
   };
 
   const getUserPostVotes = () => {};
+
+  useEffect(() => {
+    if (snippetsFetched) buildUserHomeFeed();
+  }, [snippetsFetched]);
+
 
   useEffect(() => {
     if (!user && !loadingUser) buildNoUserHomeFeed();

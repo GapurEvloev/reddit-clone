@@ -1,3 +1,4 @@
+import { useRouter } from "next/router";
 import React, { useState } from 'react';
 import {
   Modal,
@@ -40,6 +41,7 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   const [communityType, setCommunityType] = useState('public');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const handleChange = ({
     target: { value },
@@ -104,6 +106,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
           },
         );
       });
+
+      handleClose();
+      router.push(`r/${communityName}`);
     } catch (error: any) {
       console.error(error);
       setError(error.message);
