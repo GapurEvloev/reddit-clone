@@ -1,5 +1,5 @@
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -12,9 +12,7 @@ export const createUserDocument = functions.auth
       email: user.email,
       displayName: user.displayName,
       providerData: user.providerData,
-    }
+    };
 
-    db.collection("users")
-      .doc(user.uid)
-      .set(newUser);
+    db.collection('users').doc(user.uid).set(newUser);
   });

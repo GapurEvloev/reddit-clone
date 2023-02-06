@@ -1,31 +1,26 @@
-import Head from 'next/head';
 import { Inter } from '@next/font/google';
 import { NextPage } from 'next';
+import Head from "next/head";
 import { Post, PostVote } from '../atoms/postsAtom';
 import CreatePostLink from '../components/Community/CreatePostLink';
-import PersonalHome from "../components/Community/PersonalHome";
-import Premium from "../components/Community/Premium";
-import Recommendations from "../components/Community/Recommendations";
+import PersonalHome from '../components/Community/PersonalHome';
+import Premium from '../components/Community/Premium';
+import Recommendations from '../components/Community/Recommendations';
 import PageContent from '../components/Layout/PageContent';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import PostLoader from '../components/Post/Loader';
 import PostItem from '../components/Post/PostItem';
 import { auth, firestore } from '../firebase/clientApp';
-import { useRecoilValue } from 'recoil';
-import { communityState } from '../atoms/communitiesAtom';
 import { useEffect, useState } from 'react';
 import useCommunityData from '../hooks/useCommunityData';
 import usePosts from '../hooks/usePosts';
 import { Stack } from '@chakra-ui/react';
 import {
   collection,
-  DocumentData,
   getDocs,
   limit,
-  onSnapshot,
   orderBy,
   query,
-  QuerySnapshot,
   where,
 } from 'firebase/firestore';
 
@@ -89,7 +84,6 @@ const Home: NextPage = () => {
         id: doc.id,
         ...doc.data(),
       }));
-      console.log('NO USER FEED', posts);
 
       setPostStateValue((prev) => ({
         ...prev,
@@ -144,38 +138,43 @@ const Home: NextPage = () => {
   }, [user, postStateValue.posts]);
 
   return (
-    <PageContent>
-      <>
-        <CreatePostLink />
-        {loading ? (
-          <PostLoader />
-        ) : (
-          <Stack>
-            {postStateValue.posts.map((post) => (
-              <PostItem
-                post={post}
-                userIsCreator={user?.uid === post.creatorId}
-                onVote={onVote}
-                onDeletePost={onDeletePost}
-                key={post.id}
-                userVoteValue={
-                  postStateValue.postVotes.find(
-                    (item) => item.postId === post.id,
-                  )?.voteValue
-                }
-                onSelectPost={onSelectPost}
-                homePage
-              />
-            ))}
-          </Stack>
-        )}
-      </>
-      <Stack spacing={5}>
-        <Recommendations />
-        <Premium />
-        <PersonalHome />
-      </Stack>
-    </PageContent>
+    <>
+      <Head>
+        <title>Reddit clone</title>
+      </Head>
+      <PageContent>
+        <>
+          <CreatePostLink />
+          {loading ? (
+            <PostLoader />
+          ) : (
+            <Stack>
+              {postStateValue.posts.map((post) => (
+                <PostItem
+                  post={post}
+                  userIsCreator={user?.uid === post.creatorId}
+                  onVote={onVote}
+                  onDeletePost={onDeletePost}
+                  key={post.id}
+                  userVoteValue={
+                    postStateValue.postVotes.find(
+                      (item) => item.postId === post.id,
+                    )?.voteValue
+                  }
+                  onSelectPost={onSelectPost}
+                  homePage
+                />
+              ))}
+            </Stack>
+          )}
+        </>
+        <Stack spacing={5}>
+          <Recommendations />
+          <Premium />
+          <PersonalHome />
+        </Stack>
+      </PageContent>
+    </>
   );
 };
 
