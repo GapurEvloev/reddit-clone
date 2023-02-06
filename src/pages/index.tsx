@@ -3,6 +3,9 @@ import { Inter } from '@next/font/google';
 import { NextPage } from 'next';
 import { Post, PostVote } from '../atoms/postsAtom';
 import CreatePostLink from '../components/Community/CreatePostLink';
+import PersonalHome from "../components/Community/PersonalHome";
+import Premium from "../components/Community/Premium";
+import Recommendations from "../components/Community/Recommendations";
 import PageContent from '../components/Layout/PageContent';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import PostLoader from '../components/Post/Loader';
@@ -167,7 +170,11 @@ const Home: NextPage = () => {
           </Stack>
         )}
       </>
-      <></>
+      <Stack spacing={5}>
+        <Recommendations />
+        <Premium />
+        <PersonalHome />
+      </Stack>
     </PageContent>
   );
 };
