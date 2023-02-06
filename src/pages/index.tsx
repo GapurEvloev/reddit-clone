@@ -11,7 +11,7 @@ import { auth, firestore } from '../firebase/clientApp';
 import { useRecoilValue } from 'recoil';
 import { communityState } from '../atoms/communitiesAtom';
 import { useEffect, useState } from 'react';
-import useCommunityData from "../hooks/useCommunityData";
+import useCommunityData from '../hooks/useCommunityData';
 import usePosts from '../hooks/usePosts';
 import { Stack } from '@chakra-ui/react';
 import {
@@ -39,7 +39,9 @@ const Home: NextPage = () => {
     onDeletePost,
   } = usePosts();
 
-  const {communityStateValue: {mySnippets, snippetsFetched}} = useCommunityData();
+  const {
+    communityStateValue: { mySnippets, snippetsFetched },
+  } = useCommunityData();
 
   const buildUserHomeFeed = async () => {
     setLoading(true);
@@ -97,16 +99,46 @@ const Home: NextPage = () => {
     }
   };
 
-  const getUserPostVotes = () => {};
+  const getUserPostVotes = async () => {
+    try {
+      const postIds = postStateValue.posts.map((post) => post.id);
+      const postVotesQuery = query(
+        collection(firestore, `users/${user?.uid}/postVotes`),
+        where('postId', 'in', postIds),
+      );
+      const postVoteDocs = await getDocs(postVotesQuery);
+      const postVotes = postVoteDocs.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      setPostStateValue((prev) => ({
+        ...prev,
+        postVotes: postVotes as PostVote[],
+      }));
+    } catch (error) {
+      console.log('getUserPostVotes', error);
+    }
+  };
 
   useEffect(() => {
     if (snippetsFetched) buildUserHomeFeed();
   }, [snippetsFetched]);
 
-
   useEffect(() => {
     if (!user && !loadingUser) buildNoUserHomeFeed();
   }, [user, loadingUser]);
+
+  useEffect(() => {
+    if (user && postStateValue.posts.length) getUserPostVotes();
+
+    return () => {
+      setPostStateValue((prev) => ({
+        ...prev,
+        postVotes: [],
+      }));
+    };
+  }, [user, postStateValue.posts]);
 
   return (
     <PageContent>
